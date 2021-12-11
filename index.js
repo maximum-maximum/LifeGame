@@ -1,3 +1,7 @@
+var start_stopBtn = document.getElementById("start_stopBtn");
+var resetBtn = document.getElementById("resetBtn");
+var randomBtn = document.getElementById("randomBtn");
+
 function Param() {
   // セルの数
   this.divSizeX = 120;
@@ -17,7 +21,8 @@ function Param() {
 
 var p = new Param();
 var max_time = 1000;
-var time = max_time - 300;
+var default_time = 300;
+var time = max_time - default_time;
 
 // シーケンス用音処理
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -26,43 +31,44 @@ var destinationNode = context.destination;
 var gainNode = context.createGain();
 var type = "sine";
 gainNode.connect(destinationNode);
+gainNode.gain.value = 0.05;
 
 function soundPlay(freq) {
   var oscillatorNode = context.createOscillator();
   oscillatorNode.frequency.value = freq;
   oscillatorNode.type = type;
   oscillatorNode.connect(gainNode);
-  // 再生
   oscillatorNode.start(0);
-  //300ミリ秒後停止
   setTimeout(() => {
     oscillatorNode.stop(0);
   }, time);
 }
 
-document
-  .getElementById("start_stopBtn")
-  .addEventListener("click", async function () {
-    if (!p.startFlag) {
-      p.startFlag = true;
-      this.innerText = "Stop";
-      while (p.startFlag) {
-        updateData();
-        draw();
-        console.log(time);
-        await new Promise(function (resolve) {
-          setTimeout(function () {
-            resolve();
-          }, time);
-        });
-      }
-    } else {
-      p.startFlag = false;
-      this.innerText = "Start";
+start_stopBtn.addEventListener("click", async function () {
+  if (!p.startFlag) {
+    p.startFlag = true;
+    this.innerText = "Stop";
+    resetBtn.disabled = true;
+    randomBtn.disabled = true;
+    while (p.startFlag) {
+      updateData();
+      draw();
+      console.log(time);
+      await new Promise(function (resolve) {
+        setTimeout(function () {
+          resolve();
+        }, time);
+      });
     }
-  });
+  } else {
+    p.startFlag = false;
+    this.innerText = "Start";
+    resetBtn.disabled = false;
+    randomBtn.disabled = false;
+  }
+});
 
-document.getElementById("resetBtn").addEventListener("click", function () {
+resetBtn.addEventListener("click", function () {
   for (var i = 0; i < p.divSizeX; i++) {
     for (var j = 0; j < p.divSizeY; j++) {
       p.cellData[i][j] = 0;
@@ -71,7 +77,7 @@ document.getElementById("resetBtn").addEventListener("click", function () {
   draw();
 });
 
-document.getElementById("randomBtn").addEventListener("click", function () {
+randomBtn.addEventListener("click", function () {
   for (var i = 0; i < p.divSizeX; i++) {
     for (var j = 0; j < p.divSizeY; j++) {
       var preData = Math.floor(Math.random() * 2);
@@ -81,16 +87,14 @@ document.getElementById("randomBtn").addEventListener("click", function () {
   draw();
 });
 
-// 音量スライダーが調節されたときの処理
+// 音量スライダー
 document.getElementById("volSlider").addEventListener("change", function () {
   gainNode.gain.value = this.value;
-  console.log(this);
 });
 
-// 波形セレクターが変更されたときの処理
+// 波形セレクター
 document.getElementById("typeSel").addEventListener("change", function () {
   type = this.value;
-  console.log(this);
 });
 
 document.getElementById("tempoSlider").addEventListener("change", function () {
@@ -193,11 +197,11 @@ function updateData() {
         if (sum === 2 || sum === 3) {
           newData[x][y] = 1;
         }
-        //過疎
+        // 過疎
         if (sum < 2) {
           newData[x][y] = 0;
         }
-        //過密
+        // 過密
         if (sum > 3) {
           newData[x][y] = 0;
         }
@@ -213,19 +217,20 @@ function drawInitial() {
   var canvas = document.getElementById("cellsCanvas");
   var context = canvas.getContext("2d");
 
-  var cW = canvas.width; //キャンバス横サイズ
-  var cH = canvas.height; //キャンバス縦サイズ
+  // キャンバスサイズ
+  var cW = canvas.width;
+  var cH = canvas.height;
 
   // 枠のサイズ
   var offset = 5;
 
-  /** セルのサイズ */
+  // セルのサイズ
   var w = (cW - offset * 2) / p.divSizeX;
   var h = (cH - offset * 2) / p.divSizeY;
 
   (p.posX = new Array()), (p.posY = new Array());
 
-  //cellの座標を作成
+  // セルの座標を作成
   for (var x = 0; x < p.divSizeX; x++) {
     p.posX[x] = offset + x * w;
   }
@@ -233,7 +238,7 @@ function drawInitial() {
     p.posY[y] = offset + y * h;
   }
 
-  context.clearRect(0, 0, cW, cH); //クリア
+  context.clearRect(0, 0, cW, cH);
   context.fillRect(20, 40, 50, 100);
 
   context.beginPath();
@@ -254,21 +259,17 @@ function drawInitial() {
       context.fillRect(p.posX[xx], p.posY[yy], w, h);
     }
   }
-
-  //イベント：マウスダウン
   canvas.onmousedown = mouseDownListner;
-  //イベント：マウスアップ
   canvas.onmouseup = mouseUpListner;
 }
 
-//イベント：マウスダウン
 function mouseDownListner(e) {
   if (!p.startFlag) {
     var rect = e.target.getBoundingClientRect();
     var mouseX = e.clientX - rect.left;
     var mouseY = e.clientY - rect.top;
 
-    //セルチェック・表示
+    // セルチェック・表示
     var sx = p.divSizeX - 1;
     var sy = p.divSizeY - 1;
     for (var xx = 0; xx < p.divSizeX; xx++) {
@@ -289,7 +290,7 @@ function mouseDownListner(e) {
     }
   }
 }
-//イベント：マウスアップ
+
 function mouseUpListner(e) {
   if (!p.startFlag) {
     drawInitial();
@@ -307,20 +308,20 @@ function draw() {
   var canvas = document.getElementById("cellsCanvas");
   var context = canvas.getContext("2d");
 
-  var cW = canvas.width; //キャンバス横サイズ
-  var cH = canvas.height; //キャンバス縦サイズ
+  var cW = canvas.width;
+  var cH = canvas.height;
 
-  // 枠のサイズ
+  // 枠サイズ
   var offset = 5;
 
-  /** セルのサイズ */
+  // セルのサイズ
   var w = (cW - offset * 2) / p.divSizeX;
   var h = (cH - offset * 2) / p.divSizeY;
 
   var posX = new Array();
   var posY = new Array();
 
-  //cellの座標を作成
+  // セルの座標を作成
   for (var x = 0; x < p.divSizeX; x++) {
     posX[x] = offset + x * w;
   }
@@ -328,13 +329,13 @@ function draw() {
     posY[y] = offset + y * h;
   }
 
-  context.clearRect(0, 0, cW, cH); //クリア
+  context.clearRect(0, 0, cW, cH);
   context.fillRect(20, 40, 50, 100);
 
   context.beginPath();
   for (var xx = 0; xx < p.divSizeX; xx++) {
     for (var yy = 0; yy < p.divSizeY; yy++) {
-      context.strokeRect(posX[xx], posY[yy], w, h); //輪郭
+      context.strokeRect(posX[xx], posY[yy], w, h);
 
       var col = "rgba(250, 250, 250, 1.0)";
 
@@ -350,6 +351,7 @@ function draw() {
         col = "rgba(250, 0, 0, 1.0)"; //赤
         var pitch = 440 * Math.pow(2, (12 - yy) / 12);
         soundPlay(pitch);
+        console.log(gainNode.gain.value);
       }
 
       context.fillStyle = col;
