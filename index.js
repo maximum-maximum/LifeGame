@@ -1,7 +1,4 @@
 function Param() {
-  // 反復
-  var tid;
-
   // セルの数
   this.divSizeX = 120;
   this.divSizeY = 120;
@@ -43,24 +40,27 @@ function soundPlay(freq) {
   }, time);
 }
 
-document.getElementById("start_stopBtn").addEventListener("click", function () {
-  if (!p.startFlag) {
-    p.startFlag = true;
-    this.innerText = "Stop";
-    if (!p.tid) {
-      clearTimeout(p.tid);
-      p.tid = setInterval(() => {
+document
+  .getElementById("start_stopBtn")
+  .addEventListener("click", async function () {
+    if (!p.startFlag) {
+      p.startFlag = true;
+      this.innerText = "Stop";
+      while (p.startFlag) {
         updateData();
         draw();
-      }, time);
+        console.log(time);
+        await new Promise(function (resolve) {
+          setTimeout(function () {
+            resolve();
+          }, time);
+        });
+      }
+    } else {
+      p.startFlag = false;
+      this.innerText = "Start";
     }
-  } else {
-    p.startFlag = false;
-    this.innerText = "Start";
-    clearTimeout(p.tid);
-    p.tid = null;
-  }
-});
+  });
 
 document.getElementById("resetBtn").addEventListener("click", function () {
   for (var i = 0; i < p.divSizeX; i++) {
@@ -296,7 +296,7 @@ function mouseUpListner(e) {
   }
 }
 
-/** xy位置補正 */
+// xy位置補正
 function adjustXY(e) {
   var rect = e.target.getBoundingClientRect();
   mouseX = e.clientX - rect.left;
