@@ -7,12 +7,9 @@ function Param() {
   this.divSizeY = 120;
 
   this.cellData = Array();
-  this.cellDataInitial = Array();
   for (var x = 0; x < this.divSizeX; x++) {
     this.cellData[x] = new Array();
-    this.cellDataInitial[x] = new Array();
     for (var y = 0; y < this.divSizeY; y++) {
-      this.cellDataInitial[x][y] = 0;
       this.cellData[x][y] = 0;
     }
   }
@@ -22,7 +19,8 @@ function Param() {
 }
 
 var p = new Param();
-var time = 300;
+var max_time = 1000;
+var time = max_time - 300;
 
 // シーケンス用音処理
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -67,7 +65,6 @@ document.getElementById("start_stopBtn").addEventListener("click", function () {
 document.getElementById("resetBtn").addEventListener("click", function () {
   for (var i = 0; i < p.divSizeX; i++) {
     for (var j = 0; j < p.divSizeY; j++) {
-      p.cellDataInitial[i][j] = 0;
       p.cellData[i][j] = 0;
     }
   }
@@ -78,7 +75,6 @@ document.getElementById("randomBtn").addEventListener("click", function () {
   for (var i = 0; i < p.divSizeX; i++) {
     for (var j = 0; j < p.divSizeY; j++) {
       var preData = Math.floor(Math.random() * 2);
-      p.cellDataInitial[i][j] = preData;
       p.cellData[i][j] = preData;
     }
   }
@@ -98,12 +94,12 @@ document.getElementById("typeSel").addEventListener("change", function () {
 });
 
 document.getElementById("tempoSlider").addEventListener("change", function () {
-  time = 1000 - this.value;
+  time = max_time - this.value;
 });
 
 var playFlag = false;
 var pos = -1;
-document.getElementById("playBtn").addEventListener("click", () => {
+document.getElementById("playBtn").addEventListener("click", function () {
   console.log(this.textContent);
   if (this.textContent === "Play") {
     this.textContent = "Stop";
@@ -247,7 +243,7 @@ function drawInitial() {
 
       var col = "rgba(250, 250, 250, 1.0)"; //灰色
 
-      if (p.cellDataInitial[xx][yy] === 1) {
+      if (p.cellData[xx][yy] === 1) {
         var col = "rgba(0, 0, 0, 1.0)"; //黒
       }
 
@@ -286,11 +282,9 @@ function mouseDownListner(e) {
       }
     }
 
-    if (p.cellDataInitial[sx][sy] === 0) {
-      p.cellDataInitial[sx][sy] = 1;
+    if (p.cellData[sx][sy] === 0) {
       p.cellData[sx][sy] = 1;
     } else {
-      p.cellDataInitial[sx][sy] = 0;
       p.cellData[sx][sy] = 0;
     }
   }
