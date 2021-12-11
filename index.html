@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Life Game</title>
+  </head>
+
+  <body>
+    <h1>Life Game & Music Settings</h1>
+
+    <h3>Life Game Setting</h3>
+    <p>
+      <button id="startBtn">Start</button>
+      <button id="stopBtn">Stop</button>
+      <button id="resetBtn">Reset</button>
+      <button id="randomBtn">Random</button>
+      <br />
+      Speed：<input
+        type="range"
+        id="tempoSlider"
+        max="1000"
+        min="100"
+        step="50"
+        value="300"
+      /><br /><br />
+    </p>
+
+    <h3>Music Sequencer Settings</h3>
+    <p>
+      <button id="playBtn">Play</button>
+      <br />
+      Volume：<input
+        type="range"
+        id="volSlider"
+        max="1"
+        min="0"
+        step="0.1"
+        value="1"
+      />
+      <select id="typeSel">
+        <option value="sine">正弦波</option>
+        <option value="square">矩形波</option>
+        <option value="sawtooth">のこぎり波</option>
+        <option value="triangle">三角波</option>
+      </select>
+    </p>
+    <canvas id="cellsCanvas" width="600" height="600"></canvas>
+    <script src="index.js"></script>
+  </body>
+</html>
