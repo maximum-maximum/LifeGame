@@ -1,3 +1,26 @@
+function Param() {
+  // 反復
+  var tid;
+
+  // セルの数
+  this.divSizeX = 120;
+  this.divSizeY = 120;
+
+  this.cellData = Array();
+  this.cellDataInitial = Array();
+  for (var x = 0; x < this.divSizeX; x++) {
+    this.cellData[x] = new Array();
+    this.cellDataInitial[x] = new Array();
+    for (var y = 0; y < this.divSizeY; y++) {
+      this.cellDataInitial[x][y] = 0;
+      this.cellData[x][y] = 0;
+    }
+  }
+  this.posX = new Array();
+  this.posY = new Array();
+  this.startFlag = false;
+}
+
 var p = new Param();
 var time = 300;
 
@@ -22,18 +45,44 @@ function soundPlay(freq) {
   }, time);
 }
 
-// リスナー
-document.getElementById("startBtn").addEventListener("click", () => {
-  if (!p.startFlag) startBtn();
+document.getElementById("start_stopBtn").addEventListener("click", function () {
+  if (!p.startFlag) {
+    p.startFlag = true;
+    this.innerText = "Stop";
+    if (!p.tid) {
+      clearTimeout(p.tid);
+      p.tid = setInterval(() => {
+        updateData();
+        draw();
+      }, time);
+    }
+  } else {
+    p.startFlag = false;
+    this.innerText = "Start";
+    clearTimeout(p.tid);
+    p.tid = null;
+  }
 });
-document.getElementById("stopBtn").addEventListener("click", () => {
-  if (p.startFlag) stopBtn();
+
+document.getElementById("resetBtn").addEventListener("click", function () {
+  for (var i = 0; i < p.divSizeX; i++) {
+    for (var j = 0; j < p.divSizeY; j++) {
+      p.cellDataInitial[i][j] = 0;
+      p.cellData[i][j] = 0;
+    }
+  }
+  draw();
 });
-document.getElementById("resetBtn").addEventListener("click", () => {
-  clearData();
-});
-document.getElementById("randomBtn").addEventListener("click", () => {
-  randomData();
+
+document.getElementById("randomBtn").addEventListener("click", function () {
+  for (var i = 0; i < p.divSizeX; i++) {
+    for (var j = 0; j < p.divSizeY; j++) {
+      var preData = Math.floor(Math.random() * 2);
+      p.cellDataInitial[i][j] = preData;
+      p.cellData[i][j] = preData;
+    }
+  }
+  draw();
 });
 
 // 音量スライダーが調節されたときの処理
@@ -41,11 +90,13 @@ document.getElementById("volSlider").addEventListener("change", function () {
   gainNode.gain.value = this.value;
   console.log(this);
 });
+
 // 波形セレクターが変更されたときの処理
 document.getElementById("typeSel").addEventListener("change", function () {
   type = this.value;
   console.log(this);
 });
+
 document.getElementById("tempoSlider").addEventListener("change", function () {
   time = 1000 - this.value;
 });
@@ -81,88 +132,6 @@ function loop() {
 
 drawInitial();
 
-function startBtn() {
-  p.startFlag = true;
-  if (!p.tid) {
-    for (var x = 0; x < p.divSizeX; x++) {
-      for (var y = 0; y < p.divSizeY; y++) {
-        p.cellData[x][y] = p.cellDataInitial[x][y];
-      }
-    }
-
-    start();
-  }
-}
-
-function start() {
-  clearTimeout(p.tid);
-  p.tid = setInterval(() => {
-    updateData();
-    draw();
-  }, time);
-}
-
-function stopBtn() {
-  p.startFlag = false;
-
-  clearTimeout(p.tid);
-  p.tid = null;
-
-  // セルの初期化
-  // 参照のコピーではなく値のコピー
-  //for (var x = 0; x < p.divSizeX; x++) {
-  //for (var y = 0; y < p.divSizeY; y++) {
-  //p.cellData[x][y] = p.cellDataInitial[x][y];
-  //}
-  //}
-  //draw();
-}
-
-function clearData() {
-  for (var i = 0; i < p.divSizeX; i++) {
-    for (var j = 0; j < p.divSizeY; j++) {
-      p.cellDataInitial[i][j] = 0;
-      p.cellData[i][j] = 0;
-    }
-  }
-  draw();
-}
-
-function randomData() {
-  for (var i = 0; i < p.divSizeX; i++) {
-    for (var j = 0; j < p.divSizeY; j++) {
-      var preData = Math.floor(Math.random() * 2);
-      p.cellDataInitial[i][j] = preData;
-      p.cellData[i][j] = preData;
-    }
-  }
-  draw();
-}
-
-// 変数
-function Param() {
-  // 反復
-  var tid;
-
-  // セルの数
-  this.divSizeX = 120;
-  this.divSizeY = 120;
-
-  this.cellData = Array();
-  this.cellDataInitial = Array();
-  for (var x = 0; x < this.divSizeX; x++) {
-    this.cellData[x] = new Array();
-    this.cellDataInitial[x] = new Array();
-    for (var y = 0; y < this.divSizeY; y++) {
-      this.cellDataInitial[x][y] = 0;
-      this.cellData[x][y] = 0;
-    }
-  }
-  this.posX = new Array();
-  this.posY = new Array();
-  this.startFlag = false;
-}
-
 function updateData() {
   var newData = new Array();
   // 初期化
@@ -177,7 +146,6 @@ function updateData() {
   for (var x = 0; x < p.divSizeX; x++) {
     for (var y = 0; y < p.divSizeY; y++) {
       // 値を作成
-
       var leftX = x - 1;
       var centerX = x;
       var rightX = x + 1;
