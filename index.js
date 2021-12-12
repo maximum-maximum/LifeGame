@@ -254,9 +254,6 @@ function drawInitial() {
 
       context.fillStyle = col;
       context.fillRect(p.posX[xx], p.posY[yy], w, h);
-
-      context.fillStyle = col;
-      context.fillRect(p.posX[xx], p.posY[yy], w, h);
     }
   }
   canvas.onmousedown = mouseDownListner;
@@ -353,9 +350,6 @@ function draw() {
         soundPlay(pitch);
         console.log(gainNode.gain.value);
       }
-
-      context.fillStyle = col;
-      context.fillRect(posX[xx], posY[yy], w, h);
 
       context.fillStyle = col;
       context.fillRect(posX[xx], posY[yy], w, h);
